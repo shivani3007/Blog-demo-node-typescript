@@ -28,7 +28,8 @@ const userSchema:Schema = new Schema({
     },
     password:{
         type:String,
-        required:true
+        required:true,
+        select:false,
     },
     age:{
         type:Number,
@@ -44,6 +45,7 @@ const userSchema:Schema = new Schema({
     }
 });
 
+//Hash the password before saving to database
 userSchema.pre('save',async function(next:any) {
     try{
         const salt = await bcrypt.genSalt(10);
@@ -55,4 +57,12 @@ userSchema.pre('save',async function(next:any) {
     }
 })
 
-export default mongoose.model<IUser>('user',userSchema);
+// Exclude the password field when converting the document to JSON
+userSchema.set('toJSON', {
+    transform: function (doc, ret) {
+      delete ret.password;
+      return ret;
+    },
+  });
+
+export default mongoose.model<IUser>('User',userSchema);
